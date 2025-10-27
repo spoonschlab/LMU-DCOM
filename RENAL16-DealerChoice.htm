@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dealer's Choice: Syndromes Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .quiz-container { max-width: 800px; }
+        .question-card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+        }
+        .option-btn {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            margin-top: 0.75rem;
+            border-radius: 8px;
+            border: 1px solid #D1D5DB;
+            background-color: #F9FAFB;
+            text-align: left;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .option-btn:hover {
+            background-color: #F3F4F6;
+            border-color: #9CA3AF;
+        }
+        .option-btn.selected {
+            background-color: #DBEAFE;
+            border-color: #3B82F6;
+            font-weight: 600;
+        }
+        .option-btn.correct {
+            background-color: #D1FAE5;
+            border-color: #10B981;
+        }
+        .option-btn.incorrect {
+            background-color: #FEE2E2;
+            border-color: #EF4444;
+        }
+        .feedback { margin-top: 1.5rem; padding: 1rem; border-radius: 8px; }
+        .feedback.correct { background-color: #F0FDF4; color: #14532D; }
+        .feedback.incorrect { background-color: #FEF2F2; color: #991B1B; }
+        .nav-btn {
+            background-color: #3B82F6; color: white; font-weight: 600;
+            padding: 0.75rem 1.5rem; border-radius: 8px; transition: background-color 0.2s ease;
+        }
+        .nav-btn:hover { background-color: #2563EB; }
+        .nav-btn:disabled { background-color: #9CA3AF; cursor: not-allowed; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div class="quiz-container w-full">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Dealer's Choice: Syndromes Quiz</h1>
+        
+        <div id="quiz-card" class="question-card">
+            <p class="text-sm font-medium text-gray-600 mb-2" id="progress-text">Question 1 of 8</p>
+            <h2 class="text-xl font-semibold text-gray-900 mb-4" id="question-text">Loading...</h2>
+            <div id="options-container"></div>
+            <div id="feedback-container" class="hidden"></div>
+            <div class="flex justify-between items-center mt-6">
+                <span id="score-display" class="text-lg font-semibold text-gray-700">Score: 0/0</span>
+                <button id="next-btn" class="nav-btn" disabled>Next</button>
+            </div>
+        </div>
+
+        <div id="results-card" class="question-card hidden">
+            <h2 class="text-3xl font-bold text-center text-gray-800 mb-4">Quiz Complete!</h2>
+            <p class="text-xl text-center text-gray-700 mb-6">Final Score: <span id="final-score" class="font-bold"></span></p>
+            <p id="final-percentage" class="text-5xl font-bold text-center mb-8"></p>
+            <button id="restart-btn" class="nav-btn w-full mt-8">Restart Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                question: "A patient presents with skin fibrofolliculomas and a history of spontaneous pneumothorax. A renal mass is found. Which syndrome and corresponding renal tumors are most likely?",
+                options: [
+                    "Tuberous Sclerosis -> Angiomyolipoma",
+                    "Birt-Hogg-Dubé -> Chromophobe RCC & Oncocytoma",
+                    "von Hippel-Lindau -> Clear Cell RCC",
+                    "HLRCC -> Papillary RCC Type 2"
+                ],
+                answer: "Birt-Hogg-Dubé -> Chromophobe RCC & Oncocytoma",
+                concept: "This is the classic triad for Birt-Hogg-Dubé (FLCN gene): skin, lung, and kidney tumors (Chromophobe/Oncocytoma)."
+            },
+            {
+                question: "A patient is found to have bilateral Clear Cell RCC, retinal hemangioblastomas, and a pheochromocytoma. What is the underlying syndrome?",
+                options: [
+                    "von Hippel-Lindau",
+                    "WAGR Syndrome",
+                    "Tuberous Sclerosis",
+                    "Birt-Hogg-Dubé"
+                ],
+                answer: "von Hippel-Lindau",
+                concept: "This is the classic tumor constellation for VHL syndrome (VHL gene mutation)."
+            },
+            {
+                question: "A patient with a history of seizures and cutaneous angiofibromas is found to have multiple, bilateral renal masses. What is the most likely renal lesion?",
+                options: [
+                    "Clear Cell RCC",
+                    "Wilms Tumor",
+                    "Angiomyolipoma",
+                    "Papillary RCC"
+                ],
+                answer: "Angiomyolipoma",
+                concept: "The history (seizures, angiofibromas) points to Tuberous Sclerosis, which is strongly associated with Angiomyolipoma."
+            },
+            {
+                question: "A 30-year-old female has numerous uterine leiomyomas and is diagnosed with an aggressive Papillary RCC. What syndrome should be suspected?",
+                options: [
+                    "Hereditary Leiomyomatosis and RCC (HLRCC)",
+                    "Denys-Drash Syndrome",
+                    "Hereditary Papillary RCC",
+                    "von Hippel-Lindau"
+                ],
+                answer: "Hereditary Leiomyomatosis and RCC (HLRCC)",
+                concept: "This combination of cutaneous/uterine leiomyomas and aggressive Papillary RCC (Type 2) is classic for HLRCC (Fumarate Hydratase mutation)."
+            },
+            {
+                question: "A child presents with Aniridia, Genitourinary malformations, and mental Retardation. This child is at high risk for which renal tumor?",
+                options: [
+                    "Angiomyolipoma",
+                    "Clear Cell RCC",
+                    "Wilms Tumor",
+                    "Oncocytoma"
+                ],
+                answer: "Wilms Tumor",
+                concept: "This is the classic WAGR syndrome (WT1 deletion), which includes a high risk for Wilms Tumor."
+            },
+            {
+                question: "A 1-year-old is diagnosed with a Wilms Tumor. The patient also has congenital nephropathy and intersex disorders. What is the syndrome?",
+                options: [
+                    "WAGR Syndrome",
+                    "Denys-Drash Syndrome",
+                    "Beckwith-Wiedemann Syndrome",
+                    "Tuberous Sclerosis"
+                ],
+                answer: "Denys-Drash Syndrome",
+                concept: "This triad (Wilms, nephropathy, intersex) is classic for Denys-Drash Syndrome (WT1 mutation)."
+            },
+            {
+                question: "An infant is born with exomphalos, macroglossia, and gigantism. This puts them at risk for developing which tumor?",
+                options: [
+                    "Renal Medullary Carcinoma",
+                    "Wilms Tumor",
+                    "Angiomyolipoma",
+                    "Clear Cell RCC"
+                ],
+                answer: "Wilms Tumor",
+                concept: "This triad is classic for Beckwith-Wiedemann Syndrome (WT2 region), which increases the risk for Wilms Tumor."
+            },
+            {
+                question: "A patient with a VHL gene mutation is at high risk for Hemangioblastomas, Pheochromocytomas, and which specific renal malignancy?",
+                options: [
+                    "Papillary RCC",
+                    "Chromophobe RCC",
+                    "Clear Cell RCC",
+                    "Angiomyolipoma"
+                ],
+                answer: "Clear Cell RCC",
+                concept: "VHL syndrome is the classic genetic cause of Clear Cell RCC."
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let questionsAnswered = 0;
+
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const feedbackContainer = document.getElementById('feedback-container');
+        const nextBtn = document.getElementById('next-btn');
+        const scoreDisplay = document.getElementById('score-display');
+        const quizCard = document.getElementById('quiz-card');
+        const resultsCard = document.getElementById('results-card');
+        const finalScore = document.getElementById('final-score');
+        const finalPercentage = document.getElementById('final-percentage');
+        const restartBtn = document.getElementById('restart-btn');
+        const progressText = document.getElementById('progress-text');
+
+        function loadQuestion() {
+            if (currentQuestionIndex >= quizData.length) {
+                showResults();
+                return;
+            }
+
+            const question = quizData[currentQuestionIndex];
+            questionText.textContent = question.question;
+            optionsContainer.innerHTML = '';
+            feedbackContainer.innerHTML = '';
+            feedbackContainer.classList.add('hidden');
+            nextBtn.disabled = true;
+
+            progressText.textContent = `Question ${currentQuestionIndex + 1} of ${quizData.length}`;
+
+            question.options.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.classList.add('option-btn');
+                button.onclick = () => selectOption(button, option, question.answer, question.concept);
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        function selectOption(button, selectedOption, correctAnswer, concept) {
+            Array.from(optionsContainer.children).forEach(btn => {
+                btn.disabled = true;
+                if (btn.textContent === correctAnswer) {
+                    btn.classList.add('correct');
+                } else if (btn.textContent === selectedOption) {
+                    btn.classList.add('incorrect');
+                }
+            });
+
+            button.classList.add('selected');
+
+            const feedback = document.createElement('div');
+            feedback.classList.add('feedback');
+            
+            questionsAnswered++;
+            if (selectedOption === correctAnswer) {
+                score++;
+                feedback.classList.add('correct');
+                feedback.innerHTML = `<strong>Correct!</strong><br>${concept}`;
+            } else {
+                feedback.classList.add('incorrect');
+                feedback.innerHTML = `<strong>Incorrect.</strong> The correct answer is <strong>${correctAnswer}</strong>.<br>${concept}`;
+            }
+            
+            feedbackContainer.appendChild(feedback);
+            feedbackContainer.classList.remove('hidden');
+
+            scoreDisplay.textContent = `Score: ${score}/${questionsAnswered}`;
+            nextBtn.disabled = false;
+        }
+
+        function showResults() {
+            quizCard.classList.add('hidden');
+            resultsCard.classList.remove('hidden');
+            
+            const percentage = (score / quizData.length) * 100;
+            finalScore.textContent = `${score} / ${quizData.length}`;
+            finalPercentage.textContent = `${percentage.toFixed(0)}%`;
+
+            if (percentage >= 80) {
+                finalPercentage.style.color = '#10B981';
+            } else if (percentage >= 60) {
+                finalPercentage.style.color = '#F59E0B';
+            } else {
+                finalPercentage.style.color = '#EF4444';
+            }
+        }
+
+        nextBtn.addEventListener('click', () => {
+            currentQuestionIndex++;
+            loadQuestion();
+        });
+
+        restartBtn.addEventListener('click', () => {
+            currentQuestionIndex = 0;
+            score = 0;
+            questionsAnswered = 0;
+            scoreDisplay.textContent = `Score: 0/0`;
+            resultsCard.classList.add('hidden');
+            quizCard.classList.remove('hidden');
+            loadQuestion();
+        });
+
+        loadQuestion();
+    </script>
+</body>
+</html>
