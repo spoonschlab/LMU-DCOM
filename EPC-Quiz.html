@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EPC Exam 3 Master Quiz</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --bg: #f3f4f6;
+            --card-bg: #ffffff;
+            --text: #1f2937;
+            --text-light: #6b7280;
+            --success: #10b981;
+            --error: #ef4444;
+            --mlec: #dc2626;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Header */
+        header {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid #e5e7eb;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        h1 { margin: 0; font-size: 1.25rem; }
+        .score-board { font-weight: bold; color: var(--primary); }
+
+        /* Navigation Modules */
+        .module-nav {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            padding: 0.75rem;
+            background: #fff;
+            border-bottom: 1px solid #e5e7eb;
+            scrollbar-width: none; /* Firefox */
+        }
+        .module-nav::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+
+        .module-btn {
+            background: none;
+            border: 1px solid #d1d5db;
+            border-radius: 9999px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-light);
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .module-btn.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 1rem;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Question Card */
+        .question-card {
+            background: var(--card-bg);
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .mlec-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background-color: #fee2e2;
+            color: var(--mlec);
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            border: 1px solid #fecaca;
+            text-transform: uppercase;
+        }
+
+        .q-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            color: var(--text-light);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 700;
+        }
+
+        .q-text {
+            font-size: 1.1rem;
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+            color: #111827;
+        }
+
+        /* Options */
+        .options-grid {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .option-btn {
+            display: flex;
+            align-items: flex-start;
+            padding: 1rem;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            text-align: left;
+            font-size: 0.95rem;
+            color: var(--text);
+            user-select: none;
+        }
+
+        .option-btn:hover { border-color: #9ca3af; }
+        .option-btn:active { transform: scale(0.99); }
+
+        .option-btn.correct {
+            border-color: var(--success);
+            background-color: #d1fae5;
+            color: #064e3b;
+        }
+
+        .option-btn.incorrect {
+            border-color: var(--error);
+            background-color: #fee2e2;
+            color: #7f1d1d;
+        }
+
+        .key-hint {
+            flex-shrink: 0;
+            width: 24px;
+            height: 24px;
+            line-height: 22px;
+            text-align: center;
+            border: 1px solid #9ca3af;
+            border-radius: 4px;
+            margin-right: 12px;
+            color: #6b7280;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-top: 0px; 
+        }
+
+        /* Feedback Section */
+        .feedback-container {
+            display: none;
+            gap: 1rem;
+            margin-top: 1rem;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .feedback-box {
+            background: white;
+            padding: 1.25rem;
+            border-radius: 0.5rem;
+            border: 1px solid #e5e7eb;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            flex: 1;
+        }
+
+        .feedback-box h4 {
+            margin-top: 0;
+            color: var(--text-light);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.05em;
+        }
+
+        .justification { border-left: 4px solid var(--primary); }
+        .explanation { border-left: 4px solid var(--success); }
+
+        /* Footer / Controls */
+        footer {
+            background: white;
+            padding: 1rem;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .next-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: background 0.2s;
+            display: none; /* Hidden until answer */
+        }
+        
+        .next-btn:hover { background-color: var(--primary-dark); }
+        .next-btn:active { transform: translateY(1px); }
+
+        .progress { font-weight: 600; color: var(--text-light); font-size: 0.9rem; }
+
+        /* Mobile Responsive */
+        @media (min-width: 768px) {
+            .feedback-container { flex-direction: row; }
+            .q-text { font-size: 1.25rem; }
+        }
+        @media (max-width: 767px) {
+            .feedback-container { flex-direction: column; }
+            .mlec-badge { position: relative; top: 0; right: 0; display: inline-block; margin-bottom: 0.5rem; }
+            .q-header { flex-direction: column; gap: 0.25rem; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>EPC Exam 3 Prep</h1>
+    <div class="score-board" id="score-display">0%</div>
+</header>
+
+<div class="module-nav" id="moduleNav">
+    <!-- Generated by JS -->
+</div>
+
+<main id="game-area">
+    <div class="question-card">
+        <div class="q-header">
+            <span id="q-category">Topic</span>
+            <div class="mlec-badge" id="mlecBadge" style="display:none;">High Yield MLEC</div>
+        </div>
+        <div class="q-text" id="q-text">
+            Loading...
+        </div>
+        <div class="options-grid" id="options-area">
+            <!-- Options generated by JS -->
+        </div>
+    </div>
+
+    <div class="feedback-container" id="feedback-area">
+        <div class="feedback-box justification">
+            <h4>Source & Objective</h4>
+            <div id="justification-text"></div>
+        </div>
+        <div class="feedback-box explanation">
+            <h4>Explanation</h4>
+            <div id="explanation-text"></div>
+        </div>
+    </div>
+</main>
+
+<footer>
+    <div class="progress" id="progress-text">1 / 20</div>
+    <button class="next-btn" id="next-btn">Next Question ➔</button>
+</footer>
+
+<script>
+// ==========================================
+// DATA: 100 Questions from Uploaded Material
+// ==========================================
+const questionData = [
+    // --- MODULE: CARDIAC EXAM (20 Questions) ---
+    {
+        module: "Cardiac",
+        tags: ["MLEC"],
+        text: "You are examining a patient with a loud, harsh holosystolic murmur at the left lower sternal border. Upon palpation, you feel a thrill. What is the minimum grade of this murmur?",
+        options: ["Grade 2", "Grade 3", "Grade 4", "Grade 6"],
+        answer: 2,
+        justification: "Objective: Grade a murmur from its clinical presentation. MLEC: Interpret murmurs.",
+        explanation: "A palpable thrill is the defining characteristic that elevates a murmur to Grade 4. Grades 1-3 do not have thrills. Grade 5 and 6 have thrills but are audible with the stethoscope partially or fully off the chest."
+    },
+    {
+        module: "Cardiac",
+        tags: ["MLEC"],
+        text: "A patient presents with a history of hypertension. On exam, you note a sustained, high-amplitude impulse displaced lateral to the midclavicular line. What pathologic process does this suggest?",
+        options: ["Right Ventricular Hypertrophy", "Left Ventricular Hypertrophy", "Dilated Cardiomyopathy", "Mitral Stenosis"],
+        answer: 1,
+        justification: "Objective: Relate PMI findings to pathophysiology. MLEC: Relate PMI findings to pathophysiology.",
+        explanation: "A sustained, displaced, high-amplitude PMI is the hallmark physical sign of Left Ventricular Hypertrophy (LVH). RVH would typically cause a heave at the left sternal border, not a displaced PMI."
+    },
+    {
+        module: "Cardiac",
+        tags: ["Objective"],
+        text: "You auscultate a patient and hear a midsystolic crescendo-decrescendo murmur at the 2nd right intercostal space that radiates to the neck. Which maneuver would decrease the intensity of this murmur?",
+        options: ["Squatting", "Valsalva (Strain phase)", "Leg elevation", "Expiration"],
+        answer: 1,
+        justification: "Objective: Compare/contrast types of midsystolic ejection murmurs. Objective: Describe physiology behind maneuvers.",
+        explanation: "The murmur is Aortic Stenosis (AS). Valsalva (strain) decreases venous return (preload). Less blood flowing across the stenotic valve results in a softer murmur. Squatting increases preload and would make AS louder."
+    },
+    {
+        module: "Cardiac",
+        tags: ["MLEC"],
+        text: "During auscultation of a 22-year-old athlete, you hear a murmur that gets LOUDER with the Valsalva maneuver. What is the most likely diagnosis?",
+        options: ["Aortic Stenosis", "Hypertrophic Obstructive Cardiomyopathy (HOCM)", "Mitral Regurgitation", "Pulmonic Stenosis"],
+        answer: 1,
+        justification: "Objective: Identify pathophysiology behind common murmurs. MLEC: Describe a murmur.",
+        explanation: "HOCM is the classic murmur that increases intensity with Valsalva. Decreased preload brings the septum closer to the mitral leaflet, increasing the obstruction. Most other murmurs (like AS) decrease with Valsalva."
+    },
+    {
+        module: "Cardiac",
+        tags: ["Objective"],
+        text: "You are measuring JVP. The top of the venous pulsation is 4 cm above the sternal angle. What is the estimated total Central Venous Pressure (CVP)?",
+        options: ["4 cm H2O", "5 cm H2O", "9 cm H2O", "14 cm H2O"],
+        answer: 2,
+        justification: "Objective: Describe accurate way to measure JVP.",
+        explanation: "CVP = Measured height above sternal angle + 5 cm (distance to right atrium). 4 cm + 5 cm = 9 cm H2O. This is slightly elevated (Normal < 8 cm H2O)."
+    },
+    {
+        module: "Cardiac",
+        tags: ["MLEC"],
+        text: "You suspect Aortic Regurgitation in a patient. Which positioning technique is best to confirm this finding?",
+        options: ["Left lateral decubitus position", "Supine with legs elevated", "Sitting up, leaning forward, holding breath after exhalation", "Standing and performing a Valsalva maneuver"],
+        answer: 2,
+        justification: "MLEC: Identify appropriate positioning to improve heart auscultation.",
+        explanation: "Aortic Regurgitation is a soft, high-pitched diastolic murmur. It is best heard by bringing the heart base closer to the chest wall: Sitting up, leaning forward, and full exhalation."
+    },
+    {
+        module: "Cardiac",
+        tags: ["MLEC"],
+        text: "A patient has a positive Hepatojugular Reflux (HJR) test. Which definition accurately describes a positive result?",
+        options: ["Transient rise in JVP < 1 cm", "Sustained rise in JVP >= 3 cm for > 15 seconds", "Decrease in JVP during abdominal compression", "Rise in JVP only during inspiration"],
+        answer: 1,
+        justification: "MLEC: Interpret the results of HJR.",
+        explanation: "A positive HJR is defined as a sustained rise in JVP of at least 3 cm (or 4 cm depending on source, but 3 cm is standard Bates) while pressure is applied. It indicates Right Ventricular Failure."
+    },
+    {
+        module: "Cardiac",
+        tags: ["Objective"],
+        text: "You hear a low-pitched extra heart sound in late diastole, just before S1. It is best heard at the apex with the bell. What is the pathophysiology?",
+        options: ["Rapid passive ventricular filling", "Atrial contraction against a stiff ventricle", "Opening of a stenotic mitral valve", "Turbulent flow across a VSD"],
+        answer: 1,
+        justification: "Objective: Identify pathophysiology of gallops (S3/S4).",
+        explanation: "A late diastolic sound is an S4. The mechanism is the 'atrial kick' contracting against a stiff, non-compliant ventricle (e.g., LVH). Rapid passive filling (Answer A) is S3."
+    },
+    {
+        module: "Cardiac",
+        tags: ["Objective"],
+        text: "Which heart sound is associated with the rapid passive filling phase of the cardiac cycle and is often termed a 'Ventricular Gallop'?",
+        options: ["S1", "S2", "S3", "S4"],
+        answer: 2,
+        justification: "Objective: Describe events related to cardiac cycle / Gallops.",
+        explanation: "S3 occurs in early diastole during rapid passive filling. It sounds like 'Ken-tuck-y'. It can be normal in youth or pathologic in volume overload (CHF)."
+    },
+    {
+        module: "Cardiac",
+        tags: ["Objective"],
+        text: "You are palpating the chest and feel a 'heave' or 'lift' at the left lower sternal border. What does this finding signify?",
+        options: ["Left Ventricular Hypertrophy", "Right Ventricular Hypertrophy", "Aortic Aneurysm", "Left Atrial Enlargement"],
+        answer: 1,
+        justification: "Objective: Know cardiovascular exam techniques: heaves, lifts.",
+        explanation: "The Right Ventricle lies anteriorly behind the sternum. A heave/lift at the Left Lower Sternal Border (LLSB) suggests Right Ventricular Hypertrophy (RVH)."
+    },
+    {
+        module: "Cardiac",
+        tags: ["Objective"],
+        text: "What is the correct location to auscultate the Mitral Valve?",
+        options: ["2nd Intercostal Space, Right Sternal Border", "2nd Intercostal Space, Left Sternal Border", "4th Intercostal Space, Left Sternal Border", "5th Intercostal Space, Midclavicular Line"],
+        answer: 3,
+        justification: "Objective: Describe relationship of audible sounds to locations.",
+        explanation: "The Mitral area (Apex) is located at the 5th Intercostal Space, Midclavicular Line."
+    },
+    {
+        module: "Cardiac",
+        tags: ["Objective"],
+        text: "A patient has a holosystolic murmur best heard at the apex which radiates to the axilla. What is the most likely diagnosis?",
+        options: ["Aortic Stenosis", "Mitral Stenosis", "Mitral Regurgitation", "Tricuspid Regurgitation"],
+        answer: 2,
+        justification: "Objective: Interpret a murmur.",
+        explanation: "This is the classic description of Mitral Regurgitation. Mitral Stenosis is diastolic. Tricuspid Regurgitation radiates to the right sternal border, not the axilla."
+    },
+    {
+        module: "Cardiac",
+        tags: ["Objective"],
+        text: "Which of the following murmurs is DIASTOLIC?",
+        options: ["Aortic Stenosis", "Mitral Regurgitation", "Mitral Valve Prolapse", "Mitral Stenosis"],
+        answer: 3,
+        justification: "Objective: Describe basic features of systolic and diastolic murmurs.",
+        explanation: "Mitral Stenosis is a diastolic murmur (obstruction to filling). AS, MR, and MVP are all systolic murmurs."
+    },
+    {
+        module: "Cardiac",
+        tags: ["Objective"],
+        text: "To best hear the low-pitched rumble of Mitral Stenosis, how should the patient be positioned?",
+        options: ["Supine", "Left Lateral Decubitus", "Seated leaning forward", "Standing"],
+        answer: 1,
+        justification: "Objective: Identify appropriate positioning.",
+        explanation: "The Left Lateral Decubitus position brings the apex closer to the chest wall and is the standard maneuver for listening to Mitral Stenosis and S3/S4 sounds."
+    },
+    {
+        module: "Cardiac",
+        tags: ["Objective"],
+        text: "Which part of the stethoscope is best for detecting low-pitched sounds like S3, S4, and the murmur of Mitral Stenosis?",
+        options: ["Diaphragm", "Bell", "Both are equal", "Neither"],
+        answer: 1,
+        justification: "Objective: Know cardiovascular exam techniques.",
+        explanation: "The Bell is designed for low-pitched sounds. The Diaphragm is for high-pitched sounds (S1, S2, AR, MR)."
+    },
+    {
+        module: "Cardiac",
+        tags: ["Objective"],
+        text: "You observe a paradoxical rise in JVP during inspiration. What is this sign called?",
+        options: ["Kussmaul's Sign", "Pulsus Paradoxus", "Traube's Sign", "Corrigan's Pulse"],
+        answer: 0,
+        justification: "Objective: Relate JVP findings to pathophysiology.",
+        explanation: "Kussmaul's sign is a rise in JVP on inspiration (normally it should fall). It is seen in constrictive pericarditis or severe right heart failure."
+    },
+    {
+        module: "Cardiac",
+        tags: ["Objective"],
+        text: "An 'Opening Snap' in early diastole is pathognomonic for which condition?",
+        options: ["Aortic Stenosis", "Mitral Stenosis", "Aortic Regurgitation", "Mitral Regurgitation"],
+        answer: 1,
+        justification: "Objective: Interpret murmurs/sounds.",
+        explanation: "An Opening Snap (OS) occurs when a stiff, stenotic mitral valve is forced open in early diastole. It is followed by the diastolic rumble of MS."
+    },
+    {
+        module: "Cardiac",
+        tags: ["Objective"],
+        text: "The closure of which valves produces the S1 heart sound?",
+        options: ["Aortic and Pulmonic", "Mitral and Tricuspid", "Mitral and Aortic", "Tricuspid and Pulmonic"],
+        answer: 1,
+        justification: "Objective: Describe events related to cardiac cycle.",
+        explanation: "S1 is the closure of the AV valves (Mitral and Tricuspid) at the start of systole. S2 is the closure of the Semilunar valves (Aortic and Pulmonic)."
+    },
+    {
+        module: "Cardiac",
+        tags: ["Objective"],
+        text: "Which murmur is described as a 'continuous machine-like murmur'?",
+        options: ["Patent Ductus Arteriosus (PDA)", "Aortic Regurgitation", "Ventricular Septal Defect", "Coarctation of the Aorta"],
+        answer: 0,
+        justification: "Objective: Interpret murmurs.",
+        explanation: "PDA produces a continuous machine-like murmur that envelopes S2, best heard at the left infraclavicular area."
+    },
+    {
+        module: "Cardiac",
+        tags: ["Objective"],
+        text: "A 'midsystolic click' is the hallmark finding of:",
+        options: ["Aortic Stenosis", "Mitral Stenosis", "Mitral Valve Prolapse", "Pulmonic Stenosis"],
+        answer: 2,
+        justification: "Objective: Interpret murmurs.",
+        explanation: "Mitral Valve Prolapse (MVP) is characterized by a mid-systolic click followed by a late systolic murmur."
+    },
+
+    // --- MODULE: RESPIRATORY EXAM (20 Questions) ---
+    {
+        module: "Respiratory",
+        tags: ["MLEC"],
+        text: "A patient presents with signs of Lobar Pneumonia (Consolidation). What would you expect to find on palpation of tactile fremitus over the affected area?",
+        options: ["Decreased Fremitus", "Increased Fremitus", "Absent Fremitus", "Normal Fremitus"],
+        answer: 1,
+        justification: "Objective: Identify exam changes secondary to consolidation. MLEC: Identify exam changes secondary to lung consolidation.",
+        explanation: "Consolidation (solid/fluid-filled lung) transmits sound vibrations better than air-filled lung. Therefore, tactile fremitus is INCREASED."
+    },
+    {
+        module: "Respiratory",
+        tags: ["MLEC"],
+        text: "You are examining a patient with a suspected Pneumothorax. Which set of findings supports this diagnosis?",
+        options: ["Dull percussion, Increased fremitus", "Hyperresonant percussion, Decreased fremitus", "Resonant percussion, Normal fremitus", "Dull percussion, Decreased fremitus"],
+        answer: 1,
+        justification: "MLEC: Identify exam findings related to a pneumothorax.",
+        explanation: "Air in the pleural space (Pneumothorax) causes Hyperresonance. The air gap blocks sound transmission, leading to Decreased Fremitus and Absent breath sounds."
+    },
+    {
+        module: "Respiratory",
+        tags: ["MLEC"],
+        text: "A high-pitched, musical sound heard predominantly on inspiration over the neck is called:",
+        options: ["Wheezing", "Rhonchi", "Stridor", "Crackles"],
+        answer: 2,
+        justification: "MLEC: Identify pathophysiology related to stridor.",
+        explanation: "Stridor is an inspiratory sound indicating Upper Airway Obstruction. It is a medical emergency. Wheezing is typically expiratory and from the lower airways."
+    },
+    {
+        module: "Respiratory",
+        tags: ["Objective"],
+        text: "When performing the 'Bronchophony' test, you ask the patient to say '99'. Over an area of consolidation, the sound is:",
+        options: ["Muffled and indistinct", "Louder and clearer", "Changes to 'ee' to 'ay'", "Whispered but loud"],
+        answer: 1,
+        justification: "Objective: Identify correct exam technique for bronchophony.",
+        explanation: "Bronchophony is positive when the spoken voice is heard louder and clearer over the chest wall, indicating consolidation. 'ee' to 'ay' is Egophony."
+    },
+    {
+        module: "Respiratory",
+        tags: ["MLEC"],
+        text: "Which condition would present with 'Dullness' to percussion?",
+        options: ["Pneumothorax", "Severe Emphysema", "Pleural Effusion", "Asthma attack"],
+        answer: 2,
+        justification: "MLEC: Identify exam findings related to pleural effusion/pneumonia.",
+        explanation: "Dullness replaces resonance when fluid or solid tissue replaces air. Pleural Effusion and Pneumonia cause dullness. Pneumothorax and Emphysema cause Hyperresonance."
+    },
+    {
+        module: "Respiratory",
+        tags: ["Objective"],
+        text: "You are auscultating the posterior chest at the level of T10. Which lung lobe are you assessing?",
+        options: ["Upper Lobe", "Middle Lobe", "Lower Lobe", "Lingula"],
+        answer: 2,
+        justification: "Objective: Describe anatomical structures deep to surface points.",
+        explanation: "The posterior chest is almost entirely Lower Lobe, especially at the base (T10). The Upper lobes are only at the very top posteriorly."
+    },
+    {
+        module: "Respiratory",
+        tags: ["Objective"],
+        text: "Discontinuous, popping sounds heard during inspiration that do not clear with coughing are called:",
+        options: ["Rhonchi", "Wheezes", "Crackles (Rales)", "Stridor"],
+        answer: 2,
+        justification: "Objective: Identify causes for adventitious sounds.",
+        explanation: "Crackles (Rales) are discontinuous popping sounds caused by the opening of collapsed alveoli/airways. Rhonchi are continuous and often clear with coughing."
+    },
+    {
+        module: "Respiratory",
+        tags: ["Objective"],
+        text: "Which finding is consistent with 'Egophony'?",
+        options: ["Spoken '99' is heard clearly", "Whispered '1-2-3' is heard loudly", "Spoken 'ee' sounds like 'ay'", "Breath sounds are absent"],
+        answer: 2,
+        justification: "Objective: Interpret findings of special tests.",
+        explanation: "Egophony is the 'E to A' change. It indicates consolidation."
+    },
+    {
+        module: "Respiratory",
+        tags: ["Objective"],
+        text: "A patient with COPD presents with a 'Barrel Chest'. This deformity is characterized by:",
+        options: ["Increased AP diameter", "Pectus excavatum", "Lateral curvature of the spine", "Sternum displaced anteriorly"],
+        answer: 0,
+        justification: "Objective: Identify signs of respiratory distress/pathology.",
+        explanation: "Air trapping in COPD leads to hyperinflation, resulting in an increased Anteroposterior (AP) diameter, known as Barrel Chest."
+    },
+    {
+        module: "Respiratory",
+        tags: ["Objective"],
+        text: "Where would you auscultate to best assess the Right Middle Lobe?",
+        options: ["Right posterior chest, mid-scapular line", "Right anterior chest, 4th-5th ICS", "Left axilla", "Supraclavicular fossa"],
+        answer: 1,
+        justification: "Objective: Describe landmarks.",
+        explanation: "The RML is an anterior structure. It is best heard on the right anterior/lateral chest around the 4th-6th ribs."
+    },
+    {
+        module: "Respiratory",
+        tags: ["MLEC"],
+        text: "On a chest radiograph, you see a visceral pleural line separated from the chest wall by a dark area without lung markings. This indicates:",
+        options: ["Pneumonia", "Pneumothorax", "Pleural Effusion", "Pulmonary Edema"],
+        answer: 1,
+        justification: "MLEC: Identify a pneumothorax from a chest radiograph.",
+        explanation: "This is the classic description of a Pneumothorax: the lung has collapsed away from the chest wall, leaving a space filled only with air (radiolucent/dark)."
+    },
+    {
+        module: "Respiratory",
+        tags: ["Objective"],
+        text: "Low-pitched, snoring adventitious sounds that often clear with coughing are:",
+        options: ["Wheezes", "Stridor", "Rhonchi", "Crackles"],
+        answer: 2,
+        justification: "Objective: Identify causes for adventitious sounds.",
+        explanation: "Rhonchi are caused by secretions in the large airways. Because the secretions are mobile, coughing can often clear them."
+    },
+    {
+        module: "Respiratory",
+        tags: ["Objective"],
+        text: "Tracheal deviation AWAY from the affected side is a sign of:",
+        options: ["Simple Pneumothorax", "Tension Pneumothorax", "Atelectasis", "Pneumonia"],
+        answer: 1,
+        justification: "Objective: Identify signs of respiratory distress/pathology.",
+        explanation: "In Tension Pneumothorax, high pressure builds up in the pleural space, pushing mediastinal structures (like the trachea) AWAY from the injury. Atelectasis pulls the trachea TOWARD the injury."
+    },
+    {
+        module: "Respiratory",
+        tags: ["Objective"],
+        text: "Which of the following describes 'Tripod Position'?",
+        options: ["Lying flat on the back", "Leaning forward with hands on knees", "Lying on the left side", "Standing with arms overhead"],
+        answer: 1,
+        justification: "Objective: Identify signs of respiratory distress.",
+        explanation: "Tripoding (leaning forward, hands on knees) is a sign of respiratory distress. It helps recruit accessory muscles (pecs) to aid in breathing."
+    },
+    {
+        module: "Respiratory",
+        tags: ["Objective"],
+        text: "Sputum that is 'Pink and Frothy' is classically associated with:",
+        options: ["Pneumococcal Pneumonia", "Pulmonary Edema", "Tuberculosis", "Bronchitis"],
+        answer: 1,
+        justification: "Objective: Identify features of different lung conditions.",
+        explanation: "Pink, frothy sputum indicates fluid mixed with blood in the alveoli, a hallmark of acute Pulmonary Edema (often cardiogenic)."
+    },
+    {
+        module: "Respiratory",
+        tags: ["Objective"],
+        text: "Cheyne-Stokes respiration is characterized by:",
+        options: ["Deep, rapid breathing (Kussmaul)", "Periods of apnea alternating with crescendo-decrescendo breathing", "Irregularly irregular breathing (Biot's)", "Normal rate but shallow depth"],
+        answer: 1,
+        justification: "Objective: Identify abnormal breathing patterns.",
+        explanation: "Cheyne-Stokes is a cyclic pattern of apnea leading to gradually faster/deeper breathing, then slowing down to apnea again. Common in Heart Failure and neurologic injury."
+    },
+    {
+        module: "Respiratory",
+        tags: ["Objective"],
+        text: "Increased tactile fremitus is a sign of:",
+        options: ["Air trapping", "Fluid in pleural space", "Lung consolidation", "Pneumothorax"],
+        answer: 2,
+        justification: "Objective: Identify exam changes secondary to consolidation.",
+        explanation: "Fremitus (vibration) is increased only when the lung tissue becomes solid (Consolidation). Anything insulating the lung (Air, Fluid in pleural space) decreases fremitus."
+    },
+    {
+        module: "Respiratory",
+        tags: ["Objective"],
+        text: "The sternal angle (Angle of Louis) corresponds to which rib level?",
+        options: ["1st Rib", "2nd Rib", "3rd Rib", "4th Rib"],
+        answer: 1,
+        justification: "Objective: Describe landmarks of chest wall.",
+        explanation: "The Sternal Angle is the palpable ridge where the manubrium meets the sternum. It marks the attachment of the 2nd Rib."
+    },
+    {
+        module: "Respiratory",
+        tags: ["Objective"],
+        text: "Which finding is most consistent with a large Pleural Effusion?",
+        options: ["Resonant percussion, midline trachea", "Dull percussion, decreased breath sounds, decreased fremitus", "Hyperresonant percussion, absent breath sounds", "Dull percussion, bronchial breath sounds, increased fremitus"],
+        answer: 1,
+        justification: "Objective: Identify exam findings related to pleural effusion.",
+        explanation: "Fluid outside the lung (effusion) blocks sound. Therefore: Dull percussion (fluid), Decreased breath sounds (blocked), Decreased fremitus (blocked)."
+    },
+    {
+        module: "Respiratory",
+        tags: ["Objective"],
+        text: "Pursed-lip breathing is a compensatory mechanism often seen in:",
+        options: ["Pneumonia", "COPD", "Pneumothorax", "Pleural Effusion"],
+        answer: 1,
+        justification: "Objective: Identify signs of respiratory distress.",
+        explanation: "Pursed-lip breathing creates positive end-expiratory pressure (PEEP) to keep airways open. It is a classic sign of COPD (Emphysema)."
+    },
+
+    // --- MODULE: CIS CARDIO & RESP (15 Questions) ---
+    {
+        module: "CIS Clinical",
+        tags: ["MLEC"],
+        text: "A patient presents with sharp anterior chest pain reproducible by palpation of the costosternal joints. What is the diagnosis?",
+        options: ["Acute Coronary Syndrome", "Costochondritis", "Pericarditis", "Pulmonary Embolism"],
+        answer: 1,
+        justification: "MLEC: Cardiovascular CIS6_Diagnose costochondritis.",
+        explanation: "Reproducible tenderness is the hallmark of Costochondritis (musculoskeletal chest pain)."
+    },
+    {
+        module: "CIS Clinical",
+        tags: ["MLEC"],
+        text: "A 55-year-old female presents with 'burning' epigastric pain relieved by food. She uses NSAIDs daily. What is the diagnosis?",
+        options: ["Acute Coronary Syndrome", "Peptic Ulcer Disease", "Aortic Dissection", "Pancreatitis"],
+        answer: 1,
+        justification: "MLEC: Cardiovascular CIS6_Diagnose peptic ulcer disease.",
+        explanation: "Burning pain relieved by food is classic for Duodenal Ulcer (PUD). NSAID use is a major risk factor."
+    },
+    {
+        module: "CIS Clinical",
+        tags: ["MLEC"],
+        text: "A patient with shortness of breath has a loud P2 and a heave at the left lower sternal border. What is the diagnosis?",
+        options: ["Aortic Stenosis", "Pulmonary Hypertension", "Mitral Regurgitation", "Costochondritis"],
+        answer: 1,
+        justification: "MLEC: Cardiovascular CIS6_Diagnose pulmonary hypertension.",
+        explanation: "Loud P2 (forceful pulmonic closure) + RV Heave (Right Ventricular Hypertrophy) = Pulmonary Hypertension."
+    },
+    {
+        module: "CIS Clinical",
+        tags: ["MLEC"],
+        text: "A 25-year-old female on oral contraceptives presents with sudden dyspnea and pleuritic chest pain. Lungs are clear to auscultation. What is the diagnosis?",
+        options: ["Pneumonia", "Pulmonary Embolism", "Asthma", "Pneumothorax"],
+        answer: 1,
+        justification: "MLEC: Respiratory CIS7_Diagnose pulmonary embolism.",
+        explanation: "Sudden dyspnea + Risk Factor (OCP) + Clear Lungs = PE until proven otherwise."
+    },
+    {
+        module: "CIS Clinical",
+        tags: ["MLEC"],
+        text: "Beck's Triad (Hypotension, JVD, Muffled Heart Sounds) is diagnostic for:",
+        options: ["Tension Pneumothorax", "Acute MI", "Pericardial Tamponade", "Pulmonary Embolism"],
+        answer: 2,
+        justification: "MLEC: Respiratory CIS7_Diagnose pericardial tamponade.",
+        explanation: "Beck's Triad indicates fluid in the pericardium compressing the heart (Tamponade)."
+    },
+    {
+        module: "CIS Clinical",
+        tags: ["MLEC"],
+        text: "A 55-year-old female with hypertension presents with chest 'pressure' and diaphoresis. What is the most likely diagnosis?",
+        options: ["GERD", "Acute Coronary Syndrome", "Costochondritis", "Anxiety"],
+        answer: 1,
+        justification: "MLEC: Cardiovascular CIS6_Diagnose acute coronary syndrome.",
+        explanation: "Pressure-like pain + Diaphoresis + Risk Factors (HTN) is ACS. Women may present with 'atypical' symptoms but pressure is a strong indicator."
+    },
+    {
+        module: "CIS Clinical",
+        tags: ["Objective"],
+        text: "Severe tearing chest pain radiating to the back between the scapulae is classic for:",
+        options: ["Myocardial Infarction", "Aortic Dissection", "Pulmonary Embolism", "Pericarditis"],
+        answer: 1,
+        justification: "Objective: Identify features that separate similar diagnoses.",
+        explanation: "Aortic Dissection classically presents as 'tearing' or 'ripping' pain radiating to the back."
+    },
+    {
+        module: "CIS Clinical",
+        tags: ["Objective"],
+        text: "Chest pain that improves when sitting up and leaning forward is characteristic of:",
+        options: ["Pericarditis", "Myocardial Infarction", "GERD", "Pneumothorax"],
+        answer: 0,
+        justification: "Objective: Identify features that separate similar diagnoses.",
+        explanation: "Pericarditis pain is positional: worse lying flat, better leaning forward."
+    },
+    {
+        module: "CIS Clinical",
+        tags: ["Objective"],
+        text: "A patient presents with cough and fever. Lungs show rales and egophony. Most likely diagnosis?",
+        options: ["Bronchitis", "Pneumonia", "Asthma", "Heart Failure"],
+        answer: 1,
+        justification: "Objective: Be able to diagnose different conditions.",
+        explanation: "Fever + Rales + Signs of Consolidation (Egophony) = Pneumonia."
+    },
+    {
+        module: "CIS Clinical",
+        tags: ["Objective"],
+        text: "Unilateral leg swelling in a patient with dyspnea suggests:",
+        options: ["Heart Failure", "Deep Vein Thrombosis / PE", "Liver Failure", "Nephrotic Syndrome"],
+        answer: 1,
+        justification: "Objective: Identify signs and symptoms.",
+        explanation: "Unilateral swelling is DVT. If associated with dyspnea, it implies PE."
+    },
+    {
+        module: "CIS Clinical",
+        tags: ["Objective"],
+        text: "Which of the following is a 'Alarm Symptom' for GERD requiring further workup?",
+        options: ["Heartburn after spicy food", "Dysphagia (difficulty swallowing)", "Regurgitation", "Belching"],
+        answer: 1,
+        justification: "Objective: Identify signs to rule out harmful diagnoses.",
+        explanation: "Dysphagia, weight loss, and anemia are alarm symptoms for GERD that require endoscopy to rule out cancer."
+    },
+    {
+        module: "CIS Clinical",
+        tags: ["Objective"],
+        text: "A patient with new onset wheezing and no history of asthma. What is a critical diagnosis to consider?",
+        options: ["Costochondritis", "Foreign Body Aspiration / Tumor", "Pleurisy", "Pneumothorax"],
+        answer: 1,
+        justification: "Objective: Create a hypothesis list.",
+        explanation: "Localized wheezing or new onset wheezing in an adult can indicate an obstruction (tumor or foreign body)."
+    },
+    {
+        module: "CIS Clinical",
+        tags: ["Objective"],
+        text: "In Case 1 (25yo F with dyspnea), what historical factor was the key risk for her condition?",
+        options: ["Smoking", "Oral Contraceptives", "Recent travel", "Family history"],
+        answer: 1,
+        justification: "Objective: Select history needed to evaluate likelihood.",
+        explanation: "Estrogen-containing oral contraceptives increase the risk of DVT/PE."
+    },
+    {
+        module: "CIS Clinical",
+        tags: ["Objective"],
+        text: "Which diagnosis is typically associated with 'Pleuritic' chest pain?",
+        options: ["Myocardial Infarction", "Pulmonary Embolism", "Aortic Dissection", "Esophageal Spasm"],
+        answer: 1,
+        justification: "Objective: Differentiate diagnoses.",
+        explanation: "PE causes pulmonary infarction which irritates the pleura, causing pain with breathing (pleuritic). MI pain is visceral (pressure)."
+    },
+    {
+        module: "CIS Clinical",
+        tags: ["Objective"],
+        text: "A patient presents with 'crushing' substernal chest pain. This quality is most specific for:",
+        options: ["Pleurisy", "Myocardial Ischemia", "Musculoskeletal pain", "Reflux"],
+        answer: 1,
+        justification: "Objective: Memorize presentation for diagnoses.",
+        explanation: "Crushing, pressure, or squeezing is the classic quality of Myocardial Ischemia."
+    },
+
+    // --- MODULE: ACLS (19 Questions) ---
+    {
+        module: "ACLS",
+        tags: ["MLEC"],
+        text: "You are treating a patient in Cardiac Arrest. The monitor shows Ventricular Fibrillation. You shock the patient. What is your immediate next action?",
+        options: ["Check Pulse", "Give Epinephrine", "Resume CPR", "Intubate"],
+        answer: 2,
+        justification: "MLEC: ACLS_Identify the appropriate intervention during cardiac arrest.",
+        explanation: "After a shock, you ALWAYS resume CPR immediately for 2 minutes. You do not check a pulse until the 2-minute cycle is complete."
+    },
+    {
+        module: "ACLS",
+        tags: ["MLEC"],
+        text: "A patient has symptomatic Bradycardia (HR 32, BP 80/50). What is the first-line drug?",
+        options: ["Epinephrine 1mg", "Atropine 1mg", "Adenosine 6mg", "Amiodarone 300mg"],
+        answer: 1,
+        justification: "MLEC: ACLS_Identify the appropriate intervention during bradycardic event.",
+        explanation: "Atropine 1mg IV is the first-line drug for symptomatic bradycardia. (Dose updated in 2020 guidelines from 0.5 to 1mg)."
+    },
+    {
+        module: "ACLS",
+        tags: ["MLEC"],
+        text: "A patient has Unstable SVT (HR 200, BP 70/40, confused). What is the priority intervention?",
+        options: ["Adenosine 6mg", "Amiodarone Infusion", "Synchronized Cardioversion", "Defibrillation"],
+        answer: 2,
+        justification: "MLEC: Recognize unstable SVT, choose treatment.",
+        explanation: "Unstable Tachycardia with a pulse requires electricity. Because it is SVT (regular narrow complex), use Synchronized Cardioversion. Defibrillation is for arrest."
+    },
+    {
+        module: "ACLS",
+        tags: ["MLEC"],
+        text: "Which drug is indicated for VF/pVT and works by prolonging repolarization (Phase 3)?",
+        options: ["Lidocaine", "Amiodarone", "Atropine", "Adenosine"],
+        answer: 1,
+        justification: "MLEC: Identify when to use amiodarone and mechanism.",
+        explanation: "Amiodarone is a Class III antiarrhythmic (K+ channel blocker) that prolongs repolarization. It is used in refractory VF/pVT."
+    },
+    {
+        module: "ACLS",
+        tags: ["MLEC"],
+        text: "In a High-Performance Team, if a compressor becomes fatigued after 1 minute, what should happen?",
+        options: ["Switch immediately without warning", "Push through to 2 minutes", "Announce fatigue and switch", "Stop CPR to rest"],
+        answer: 2,
+        justification: "MLEC: Understand team components.",
+        explanation: "Compressor fatigue reduces perfusion. The team member should announce fatigue so a switch can be orchestrated seamlessly."
+    },
+    {
+        module: "ACLS",
+        tags: ["Objective"],
+        text: "Which of the following is a 'Shockable' rhythm?",
+        options: ["Asystole", "Pulseless Electrical Activity (PEA)", "Ventricular Fibrillation", "Sinus Tachycardia"],
+        answer: 2,
+        justification: "Objective: Identify major shockable vs non-shockable rhythms.",
+        explanation: "VF and Pulseless VT are shockable. Asystole and PEA are NOT shockable."
+    },
+    {
+        module: "ACLS",
+        tags: ["Objective"],
+        text: "What is the correct dose of Epinephrine in Cardiac Arrest?",
+        options: ["1 mg every 3-5 minutes", "1 mg every 10 minutes", "300 mg bolus", "0.5 mg every 2 minutes"],
+        answer: 0,
+        justification: "Objective: Utilize epinephrine for treatment of cardiac arrest.",
+        explanation: "Epinephrine 1mg IV/IO is given every 3-5 minutes during cardiac arrest."
+    },
+    {
+        module: "ACLS",
+        tags: ["Objective"],
+        text: "A patient is in PEA. You review the H's and T's. The patient is a dialysis patient who missed their session. Which drug should you give?",
+        options: ["Magnesium Sulfate", "Calcium Chloride", "Atropine", "Adenosine"],
+        answer: 1,
+        justification: "Objective: Identify mechanism/interventions.",
+        explanation: "Missed dialysis suggests Hyperkalemia. Calcium stabilizes the cardiac membrane in hyperkalemia."
+    },
+    {
+        module: "ACLS",
+        tags: ["Objective"],
+        text: "Adenosine is the drug of choice for:",
+        options: ["Ventricular Fibrillation", "Stable Narrow Complex Tachycardia (SVT)", "Bradycardia", "Asystole"],
+        answer: 1,
+        justification: "Objective: Identify mechanism of actions of drugs.",
+        explanation: "Adenosine blocks the AV node and is used to terminate stable SVT."
+    },
+    {
+        module: "ACLS",
+        tags: ["Objective"],
+        text: "What is the primary survey action for an Unresponsive Patient?",
+        options: ["Intubate", "Check airway, breathing, pulse", "Start an IV", "Attach defibrillator pads"],
+        answer: 1,
+        justification: "Objective: Describe evaluation of unresponsive patient.",
+        explanation: "BLS Assessment: Check responsiveness, activate ERS, check breathing and pulse simultaneously."
+    },
+    {
+        module: "ACLS",
+        tags: ["Objective"],
+        text: "What is the energy setting for a monophasic defibrillator shock?",
+        options: ["120 J", "200 J", "360 J", "50 J"],
+        answer: 2,
+        justification: "Objective: Utilize defibrillator.",
+        explanation: "Monophasic defibrillators use 360J. Biphasic use 120-200J."
+    },
+    {
+        module: "ACLS",
+        tags: ["Objective"],
+        text: "Which of the following is a reversible cause of cardiac arrest (H's and T's)?",
+        options: ["Hypercholesterolemia", "Hypovolemia", "Hypertension", "Hyperglycemia"],
+        answer: 1,
+        justification: "Objective: Prioritize possible interventions/causes.",
+        explanation: "Hypovolemia is one of the H's. Others include Hypoxia, Hydrogen ion (acidosis), Hyper/Hypokalemia, Hypothermia."
+    },
+    {
+        module: "ACLS",
+        tags: ["Objective"],
+        text: "You are managing a patient with Stable Tachycardia (HR 160). What is your first action?",
+        options: ["Synchronized Cardioversion", "Vagal Maneuvers", "Amiodarone", "Epinephrine"],
+        answer: 1,
+        justification: "Objective: Demonstrate treatment of adult tachycardia.",
+        explanation: "For stable SVT, Vagal maneuvers are the first intervention before drugs (Adenosine)."
+    },
+    {
+        module: "ACLS",
+        tags: ["Objective"],
+        text: "During CPR, what is the target compression rate?",
+        options: ["60-80/min", "80-100/min", "100-120/min", "120-140/min"],
+        answer: 2,
+        justification: "Objective: Describe findings/BLS.",
+        explanation: "High-quality CPR requires a rate of 100-120 compressions per minute."
+    },
+    {
+        module: "ACLS",
+        tags: ["Objective"],
+        text: "When should you use Transcutaneous Pacing?",
+        options: ["Stable Tachycardia", "Asystole", "Unstable Bradycardia", "VF"],
+        answer: 2,
+        justification: "Objective: Assess bradycardia interventions.",
+        explanation: "Pacing is indicated for Unstable Bradycardia if Atropine is ineffective."
+    },
+    {
+        module: "ACLS",
+        tags: ["Objective"],
+        text: "What does 'ROSC' stand for?",
+        options: ["Return of Spontaneous Circulation", "Return of Systemic Conduction", "Rapid Onset of Sustained Contraction", "Rhythm of Sinus Conductance"],
+        answer: 0,
+        justification: "Objective: Describe evaluation.",
+        explanation: "ROSC is the goal of resuscitation: Return of Spontaneous Circulation (pulse)."
+    },
+    {
+        module: "ACLS",
+        tags: ["Objective"],
+        text: "What is the drug used for Torsades de Pointes?",
+        options: ["Calcium", "Magnesium Sulfate", "Amiodarone", "Epinephrine"],
+        answer: 1,
+        justification: "Objective: Identify mechanism of drugs.",
+        explanation: "Magnesium Sulfate is the specific treatment for Torsades de Pointes."
+    },
+    {
+        module: "ACLS",
+        tags: ["Objective"],
+        text: "Which leads to 'Closed-Loop Communication'?",
+        options: ["Giving an order and assuming it is done", "Repeating the order back to the leader", "Shouting orders loudly", "Writing orders down"],
+        answer: 1,
+        justification: "Objective: Team dynamics.",
+        explanation: "Closed-loop communication involves the receiver repeating the order back to confirm it was heard and understood."
+    },
+    {
+        module: "ACLS",
+        tags: ["Objective"],
+        text: "In PEA, do you shock?",
+        options: ["Yes, always", "Yes, if rate > 100", "No, never", "Only if unwitnessed"],
+        answer: 2,
+        justification: "Objective: Identify major shockable vs non-shockable rhythms.",
+        explanation: "PEA is a non-shockable rhythm. Treatment is CPR + Epi + Causes."
+    },
+
+    // --- MODULE: ULTRASOUND (10 Questions) ---
+    {
+        module: "Ultrasound",
+        tags: ["MLEC"],
+        text: "You need to scan the deep abdominal aorta. Which transducer is appropriate?",
+        options: ["Linear Array", "Curvilinear Array", "Phased Array", "Endocavitary"],
+        answer: 1,
+        justification: "Objective: Select correct transducer. MLEC: Utilize transducer frequency appropriately.",
+        explanation: "Curvilinear probes have low frequency, which allows for DEEP penetration needed for abdominal exams."
+    },
+    {
+        module: "Ultrasound",
+        tags: ["Objective"],
+        text: "Why is a Linear Array transducer used for vascular access?",
+        options: ["Low frequency, deep penetration", "High frequency, high resolution, shallow depth", "Small footprint for ribs", "Wide field of view for abdomen"],
+        answer: 1,
+        justification: "Objective: Discuss transducer frequency/advantages.",
+        explanation: "Linear probes are High Frequency. This gives excellent resolution but poor depth, making them perfect for superficial structures like vessels."
+    },
+    {
+        module: "Ultrasound",
+        tags: ["Objective"],
+        text: "In a transverse scan, the probe marker should point to the patient's:",
+        options: ["Head", "Feet", "Right", "Left"],
+        answer: 2,
+        justification: "Objective: Orient the transducer.",
+        explanation: "By convention, in transverse view, the marker points to the patient's RIGHT."
+    },
+    {
+        module: "Ultrasound",
+        tags: ["Objective"],
+        text: "In a longitudinal (sagittal) scan, the probe marker should point to the patient's:",
+        options: ["Head", "Feet", "Right", "Left"],
+        answer: 0,
+        justification: "Objective: Orient the transducer.",
+        explanation: "In longitudinal view, the marker points to the patient's HEAD."
+    },
+    {
+        module: "Ultrasound",
+        tags: ["Objective"],
+        text: "Increasing the 'Gain' on the ultrasound machine will:",
+        options: ["Make the image darker", "Make the image brighter", "Increase the depth", "Freeze the image"],
+        answer: 1,
+        justification: "Objective: Utilize 4 important buttons.",
+        explanation: "Gain amplifies the returning signal, making the image brighter (whiter)."
+    },
+    {
+        module: "Ultrasound",
+        tags: ["Objective"],
+        text: "Fluid (like blood or urine) typically appears ______ on ultrasound.",
+        options: ["Anechoic (Black)", "Hyperechoic (White)", "Isoechoic (Grey)", "Shadowing"],
+        answer: 0,
+        justification: "Objective: Identify shapes and objects.",
+        explanation: "Fluid does not reflect sound waves, so it appears black (Anechoic)."
+    },
+    {
+        module: "Ultrasound",
+        tags: ["Objective"],
+        text: "Bone or stones typically cause which artifact?",
+        options: ["Enhancement", "Shadowing", "Reverberation", "Mirroring"],
+        answer: 1,
+        justification: "Objective: Identify shapes and objects.",
+        explanation: "Dense structures like bone or stones reflect all sound, leaving a dark 'Shadow' behind them."
+    },
+    {
+        module: "Ultrasound",
+        tags: ["Objective"],
+        text: "Which probe would you use to scan between ribs for a cardiac exam?",
+        options: ["Linear", "Curvilinear", "Phased Array", "Hockey Stick"],
+        answer: 2,
+        justification: "Objective: Select correct transducer.",
+        explanation: "Phased Array probes have a small footprint and a sector beam, allowing them to peer between rib spaces."
+    },
+    {
+        module: "Ultrasound",
+        tags: ["Objective"],
+        text: "Which frequency provides the best Depth Penetration?",
+        options: ["Low Frequency (2-5 MHz)", "High Frequency (10-15 MHz)", "Medium Frequency", "Frequency does not affect depth"],
+        answer: 0,
+        justification: "Objective: Discuss transducer frequency.",
+        explanation: "Low frequency sound waves travel further (better depth) but have lower resolution."
+    },
+    {
+        module: "Ultrasound",
+        tags: ["Objective"],
+        text: "What generates the ultrasound waves in the transducer?",
+        options: ["Light bulbs", "Piezoelectric crystals", "Magnets", "X-ray tubes"],
+        answer: 1,
+        justification: "Objective: Describe basic principle.",
+        explanation: "Piezoelectric crystals vibrate when electricity is applied, creating sound waves."
+    }
+];
+
+// ==========================================
+// APP LOGIC
+// ==========================================
+
+const modules = [...new Set(questionData.map(q => q.module))];
+let currentModule = modules[0];
+let filteredQuestions = [];
+let currentIndex = 0;
+let score = 0;
+let answered = false;
+
+// UI Elements
+const moduleNav = document.getElementById('moduleNav');
+const qCategory = document.getElementById('q-category');
+const qText = document.getElementById('q-text');
+const optionsArea = document.getElementById('options-area');
+const feedbackArea = document.getElementById('feedback-area');
+const justificationText = document.getElementById('justification-text');
+const explanationText = document.getElementById('explanation-text');
+const nextBtn = document.getElementById('next-btn');
+const progressText = document.getElementById('progress-text');
+const mlecBadge = document.getElementById('mlecBadge');
+const scoreDisplay = document.getElementById('score-display');
+
+function init() {
+    // Build Module Nav
+    modules.forEach(mod => {
+        const btn = document.createElement('button');
+        btn.className = 'module-btn';
+        btn.innerText = mod;
+        if(mod === currentModule) btn.classList.add('active');
+        btn.onclick = () => setModule(mod);
+        moduleNav.appendChild(btn);
+    });
+
+    setModule(currentModule);
+}
+
+function setModule(mod) {
+    currentModule = mod;
+    document.querySelectorAll('.module-btn').forEach(b => {
+        b.classList.toggle('active', b.innerText === mod);
+    });
+    
+    filteredQuestions = questionData.filter(q => q.module === mod);
+    // Shuffle
+    for (let i = filteredQuestions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [filteredQuestions[i], filteredQuestions[j]] = [filteredQuestions[j], filteredQuestions[i]];
+    }
+    
+    currentIndex = 0;
+    score = 0;
+    updateScore();
+    loadQuestion();
+}
+
+function loadQuestion() {
+    answered = false;
+    const q = filteredQuestions[currentIndex];
+    
+    feedbackArea.style.display = 'none';
+    nextBtn.style.display = 'none';
+    optionsArea.innerHTML = '';
+    
+    qCategory.innerText = `${q.module} Module`;
+    qText.innerText = q.text;
+    progressText.innerText = `Question ${currentIndex + 1} of ${filteredQuestions.length}`;
+    
+    if(q.tags && q.tags.includes('MLEC')) {
+        mlecBadge.style.display = 'inline-block';
+    } else {
+        mlecBadge.style.display = 'none';
+    }
+
+    q.options.forEach((opt, idx) => {
+        const btn = document.createElement('div');
+        btn.className = 'option-btn';
+        const keyMap = ['A', 'B', 'C', 'D'];
+        btn.innerHTML = `<span class="key-hint">${keyMap[idx]}</span> ${opt}`;
+        btn.onclick = () => checkAnswer(idx);
+        optionsArea.appendChild(btn);
+    });
+}
+
+function checkAnswer(selectedIndex) {
+    if(answered) return;
+    answered = true;
+    
+    const q = filteredQuestions[currentIndex];
+    const options = document.querySelectorAll('.option-btn');
+    
+    if(selectedIndex === q.answer) {
+        options[selectedIndex].classList.add('correct');
+        score++;
+    } else {
+        options[selectedIndex].classList.add('incorrect');
+        options[q.answer].classList.add('correct');
+    }
+    
+    updateScore();
+    justificationText.innerText = q.justification;
+    explanationText.innerText = q.explanation;
+    feedbackArea.style.display = 'flex';
+    nextBtn.style.display = 'block';
+    
+    // Auto-scroll on mobile
+    if (window.innerWidth < 768) {
+        setTimeout(() => {
+            nextBtn.scrollIntoView({behavior: 'smooth', block: 'end'});
+        }, 100);
+    }
+}
+
+function nextQuestion() {
+    if(currentIndex < filteredQuestions.length - 1) {
+        currentIndex++;
+        loadQuestion();
+        window.scrollTo(0, 0);
+    } else {
+        alert(`Module Complete! Score: ${Math.round((score/filteredQuestions.length)*100)}%`);
+        setModule(currentModule);
+    }
+}
+
+function updateScore() {
+    const pct = Math.round((score / Math.max(currentIndex + (answered ? 1 : 0), 1)) * 100);
+    scoreDisplay.innerText = answered ? `${pct}%` : `${score}/${filteredQuestions.length}`;
+    if(currentIndex === 0 && !answered) scoreDisplay.innerText = "0%";
+}
+
+// Keyboard
+document.addEventListener('keydown', (e) => {
+    if(!answered) {
+        if(e.key === '1' || e.key.toLowerCase() === 'a') checkAnswer(0);
+        if(e.key === '2' || e.key.toLowerCase() === 'b') checkAnswer(1);
+        if(e.key === '3' || e.key.toLowerCase() === 'c') checkAnswer(2);
+        if(e.key === '4' || e.key.toLowerCase() === 'd') checkAnswer(3);
+    } else {
+        if(e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            nextQuestion();
+        }
+    }
+});
+
+nextBtn.onclick = nextQuestion;
+
+init();
+</script>
+</body>
+</html>
